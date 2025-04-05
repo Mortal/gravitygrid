@@ -1,0 +1,3 @@
+.circle {
+  fill: hsl(var(--hue) 100% 50%);
+}

@@ -2,17 +2,18 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { GameState, state_clone } from "./gamestate";
 import { Vec2, vec2, vec_fma, vec_scale, vec_sub, vec_unit } from "./vec2";
-import { constants } from "./constants";
+import { constants, walls } from "./constants";
 import React from "react";
 import { step } from "./step";
+import styles from "./App.module.css";
 
 function App() {
   const defaultPos = vec2(
     constants.columns * constants.gridradius,
-    (-constants.gridradius * 3.3) | 0,
+    constants.starty,
   );
   const initialBoard = [
-    1, -2, -2, -2, 1, 1, 1, -2, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1,
+    1, -2, 2, -2, 1, 1, 1, -2, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1,
   ];
   const [state, setState] = useState<GameState>({
@@ -64,7 +65,12 @@ function App() {
           setPlay(true);
         }}
       >
-        <Circle position={state.position} radius={constants.ballradius} />
+        <Walls />
+        <Circle
+          position={state.position}
+          radius={constants.ballradius}
+          logvalue={-1}
+        />
         {state.values.flatMap((v, i) =>
           v >= 0
             ? [
@@ -76,7 +82,7 @@ function App() {
                       constants.gridradius,
                   )}
                   radius={constants.targetradius}
-                  label={`${2 ** v}`}
+                  logvalue={v}
                 />,
               ]
             : [],
@@ -137,24 +143,44 @@ function Svg({
 function Circle({
   position,
   radius,
-  label,
+  logvalue,
 }: {
   position: Vec2;
   radius: number;
-  label?: string;
+  logvalue: number;
 }) {
   const proj = React.useContext(SvgContext);
   const pos = proj(position, 1);
   const rad = proj(vec2(radius, radius), 0);
   return (
     <>
-      <circle cx={pos.x} cy={pos.y} r={rad.x} fill="red" />
-      {label && (
+      <circle
+        cx={pos.x}
+        cy={pos.y}
+        r={rad.x}
+        className={styles.circle}
+        data-logvalue={logvalue}
+        style={{ ["--hue"]: `${logvalue * 23}` } as any}
+      />
+      {logvalue >= 0 && (
         <text x={pos.x} y={pos.y} dy={5} textAnchor="middle">
-          {label}
+          {2 ** logvalue}
         </text>
       )}
     </>
+  );
+}
+
+function Walls() {
+  const w = walls(constants);
+  const proj = React.useContext(SvgContext);
+  const tl = proj(vec2(w.left, w.top), 1);
+  const br = proj(vec2(w.right, w.bottom), 1);
+  return (
+    <path
+      d={`M ${tl.x} ${tl.y} V ${br.y} H ${br.x} V ${tl.y} Z`}
+      style={{ fill: "#574539" }}
+    />
   );
 }
 
