@@ -50,6 +50,12 @@ export function step(state: GameState, dt: number, c: Constants) {
       newvel = vec_reflect(vec_unit(vec_sub(newpos, gridcenter)), newvel);
     }
   }
+  if (newpos.x < c.ballradius - c.margin) {
+    newvel = vec_reflect(vec2(-1, 0), newvel);
+  }
+  if (newpos.x > c.gridradius * 2 * c.columns + c.margin - c.ballradius) {
+    newvel = vec_reflect(vec2(1, 0), newvel);
+  }
   state.position = newpos;
   state.velocity = vec_add(newvel, vec2(0, dt * c.gravity));
 }

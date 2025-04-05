@@ -21,9 +21,9 @@ function App() {
     velocity: vec2(0, 0),
     values: initialBoard,
   });
-  const topleft = vec2(0, -constants.gridradius * 4);
+  const topleft = vec2(-constants.margin - 2, -constants.gridradius * 5);
   const bottomright = vec2(
-    constants.gridradius * 2 * constants.columns,
+    constants.gridradius * 2 * constants.columns + constants.margin + 2,
     constants.gridradius * 2 * constants.columns,
   );
 
@@ -33,10 +33,7 @@ function App() {
     const i = setInterval(() => stepone(), constants.framemsec);
     return () => clearInterval(i);
   }, [play]);
-  const dead =
-    state.position.y > bottomright.y + constants.ballradius ||
-    state.position.x < topleft.x - constants.ballradius ||
-    state.position.x > bottomright.x + constants.ballradius;
+  const dead = state.position.y > bottomright.y + constants.ballradius;
   useEffect(() => {
     if (play && dead) setPlay(false);
   }, [play && dead]);
@@ -127,8 +124,8 @@ function Svg({
       }}
     >
       <SvgContext.Provider
-        value={({ x, y }) =>
-          vec2((x - topleft.x) * scale, (y - topleft.y) * scale)
+        value={({ x, y }, a) =>
+          vec2((x - topleft.x * a) * scale, (y - topleft.y * a) * scale)
         }
       >
         {children}
