@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+while read oldmode newmode oldhash newhash typ path; do
+	if [ "$newmode" == "120000" ]; then
+		continue
+	fi
+	if fmthash=`node_modules/.bin/prettier --stdin-filepath -u "$path" < <(git cat-file blob "$newhash") > >(git hash-object -w --stdin)`; then
+		if [ "`git cat-file -s "$fmthash"`" == "0" ]; then
+			# Empty file
+			continue
+		fi
+		patch "$path" < <(git diff "$newhash" "$fmthash") || :
+		git update-index --cacheinfo "$newmode,$fmthash,$path"
+	fi
+done < <(git diff-index --cached --diff-filter=AM --no-renames HEAD)
