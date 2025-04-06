@@ -1,3 +1,5 @@
+import { vec2 } from "./vec2";
+
 export type Constants = {
   framemsec: number;
   stepsPerFrame: number;
@@ -23,12 +25,16 @@ export const constants: Constants = {
   rows: 5,
   margin: 65,
   topmargin: 200,
-  starty: -165,
-  gridradius: 50,
+  starty: -75,
+  gridradius: 55,
   targetradius: 35,
   ballradius: 30,
-  speed: 15,
+  speed: 27,
 };
+
+export function defaultPos(c: Constants) {
+  return vec2(c.columns * c.gridradius, c.starty);
+}
 
 export function walls(c: Constants) {
   return {
